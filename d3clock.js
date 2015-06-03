@@ -6,6 +6,7 @@ var d3clock = function(config) {
   https://ericbullington.com/blog/2012/10/27/d3-oclock/
   http://www.infocaptor.com/dashboard/d3-javascript-visualization-to-build-world-analog-clocks
   */
+
   var clockGroup, fields, formatHour, formatMinute, formatSecond, height, pi, render, scaleHours, scaleSecsMins, vis, width;
 
   var hourOffset = 0;
@@ -13,25 +14,18 @@ var d3clock = function(config) {
   var secOffset = 0;
 
   formatSecond = d3.time.format("%S");
-
   formatMinute = d3.time.format("%M");
-
   formatHour = d3.time.format("%H");
-
   width = config.width ? config.width : 1000;
-
   height = width/2;
 
   var outerRadius = 0.8 * height/2;
-
   var offSetX = height/2;
-
   var offSetY = height/2;
 
   pi = Math.PI;
 
   scaleSecsMins = d3.scale.linear().domain([0, 59 + 59 / 60]).range([0, 2 * pi]);
-
   scaleHours = d3.scale.linear().domain([0, 11 + 59 / 60]).range([0, 2 * pi]);
 
   fields = function(date) {
@@ -74,17 +68,18 @@ var d3clock = function(config) {
       secOffset = sec;
   };
 
-
   if (config.TZOffset != undefined) {
     setTZHours(config.TZOffset.hours);
     setTZMins(config.TZOffset.mins);
     setTZSeconds(config.TZOffset.secs);
   }
+
   var face = 'sbb';
-  if (config.face!=undefined) {
+  if (typeof config.face !== 'undefined') {
     face = config.face;
   } 
 
+  //clock faces configuration
   var faces = {
       'sbb':{
           outerRing: {r:outerRadius * 1.05, stroke: 'black', strokeWidth: 2},
@@ -227,26 +222,28 @@ var d3clock = function(config) {
       }
   };
 
+
+  //create the basic visualization:
   vis = d3.select(config.target).append("svg:svg").attr("width", width).attr("height", height).attr("class","clock");
 
   clockGroup = vis.append("svg:g").attr("transform", "translate(" + offSetX + "," + offSetY + ")");
 
   clockGroup.append("svg:circle")
-  .attr("r", faces[face].outerRing.r)
-  .attr("fill", "none")
-  .attr("class", "clock outercircle")
-  .attr("stroke", faces[face].outerRing.stroke)
-  .attr("stroke-width", faces[face].outerRing.strokeWidth);
+      .attr("r", faces[face].outerRing.r)
+      .attr("fill", "none")
+      .attr("class", "clock outercircle")
+      .attr("stroke", faces[face].outerRing.stroke)
+      .attr("stroke-width", faces[face].outerRing.strokeWidth);
 
   clockGroup.append("svg:circle")
-  .attr("r", faces[face].innerRing.r)
-  .attr("fill", faces[face].innerRing.fill)
-  .attr("class", "clock innercircle");
+      .attr("r", faces[face].innerRing.r)
+      .attr("fill", faces[face].innerRing.fill)
+      .attr("class", "clock innercircle");
 
   clockGroup.append("svg:circle")
-  .attr("r", faces[face].innerMostRing.r)
-  .attr("fill", faces[face].innerMostRing.fill)
-  .attr("class", "clock innermostcircle");
+      .attr("r", faces[face].innerMostRing.r)
+      .attr("fill", faces[face].innerMostRing.fill)
+      .attr("class", "clock innermostcircle");
 
 
   tickGroup=clockGroup.append("svg:g");
@@ -265,6 +262,8 @@ var d3clock = function(config) {
 
 
   render = function(data) {
+    //render / update the clock hands
+
     var clockHand = clockGroup.selectAll(".clockhand").data(data);
     if (!clockHand[0][0]) {
       //draw the hands if not drawn
@@ -290,7 +289,7 @@ var d3clock = function(config) {
     } 
 
     clockHand.transition().duration(1000).ease(faces[face].easing).attr("transform", function(d,i) {
-      if (d.unit==="hours"){
+    if (d.unit==="hours"){
         return "rotate("+d.numeric%12 * 30+")";
       } else {
         return "rotate("+d.numeric * 6+")";
