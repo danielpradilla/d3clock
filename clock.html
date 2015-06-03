@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Clock Example</title>
+
+    <style>
+
+	
+    </style>
+
+  </head>
+
+  <body>
+  <div id="chart1"></div>
+
+
+
+	<!-- load the d3.js library -->	
+	<script src="../bower_components/d3/d3.min.js"></script>
+	
+	<script src="d3clock.js"></script>
+
+	<script>
+		d3clock({
+			target:'#chart1',
+			face:'sbb',
+			width:1000,
+			// date:'Mon May 25 2015 10:09:37',
+			TZOffset:{
+				hours:0
+			}
+		});
+	</script>
+	
+  </body>
+</html>
