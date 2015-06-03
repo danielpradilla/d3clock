@@ -7,7 +7,7 @@ Usage:
 
 d3clock(config);
 eg:
-
+```javascript
 d3clock({
 	target:'#chart1',
 	face:'modern',
@@ -17,13 +17,13 @@ d3clock({
 		hours:0
 	}
 });
-
+```
 
 if you send a date value in the config object, it shows a fixed time (good for testing)
 
 
-Available faces:
-================
+Available faces
+----------------
 
-sbb: The famous [Swiss Railway Clock](https://en.wikipedia.org/wiki/Swiss_railway_clock)
-modern: A somewhat modern/minimalist face
+1. sbb: The famous [Swiss Railway Clock](https://en.wikipedia.org/wiki/Swiss_railway_clock)
+2. modern: A somewhat modern/minimalist face
