@@ -5,7 +5,8 @@ An analog clock implementation in d3.
 
 Usage:
 
-d3clock(config);
+Call d3clock(config) for each clock instance
+
 eg:
 ```javascript
 d3clock({
@@ -19,7 +20,9 @@ d3clock({
 });
 ```
 
-if you send a date value in the config object, it shows a fixed time (good for testing)
+You can create several instances in a page (for showing multiple time zones, for example)
+
+If you send a date value in the config object, it shows a fixed time (good for testing)
 
 
 Available faces
