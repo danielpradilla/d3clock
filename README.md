@@ -32,3 +32,4 @@ Available faces
 
 1. sbb: The famous [Swiss Railway Clock](https://en.wikipedia.org/wiki/Swiss_railway_clock)
 2. modern: A somewhat modern/minimalist face
+3. braun: A [Braun BN0021](http://www.braun-clocks.com/watch/BN0021BKBKG)-ish face
