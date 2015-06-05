@@ -3,7 +3,7 @@ d3clock
 
 An analog clock implementation in d3.
 
-[Read the post here](https://github.com/danielpradilla/d3clock)
+[Read the post here](http://www.danielpradilla.info/blog/en/a-swiss-railway-clock-in-d3/)
 
 Usage:
 
