@@ -245,10 +245,10 @@ var d3clock = function(config) {
             return (i%5) ? '#999' : 'black';
           },
           tickText: {
-            fontSize: 12,
+            fontSize: (width * 14 / 500),
             fontFamily:'Helvetica, Arial, sans-serif',
             fn: function(i){
-              return ((i%5) ? '' : i);
+              return ((i%5) ? '' : (i/5 > 0) ? i/5: 12);
             }
           },
           rotationTranslate: function(i) {
@@ -349,15 +349,16 @@ var d3clock = function(config) {
           var xPos = Math.cos(6*i*(Math.PI/180)-1.57);
           var pos = Math.round(100*xPos); //>0, <0, 0
           if (pos>0){
-            return (outerRadius - faceObj.tickHeight(i)*2 - faceObj.tickText.fontSize )*xPos;
-          } else if (pos<0) {
             return (outerRadius - faceObj.tickHeight(i) - faceObj.tickText.fontSize )*xPos;
+          } else if (pos<0) {
+            return (outerRadius - faceObj.tickHeight(i)/2 - faceObj.tickText.fontSize )*xPos;
           } else {
-            return -faceObj.tickText.fontSize*(i+'').length/2 + (i+'').length * faceObj.tickText.fontSize/10  ;          
+            return -faceObj.tickText.fontSize*(''+faceObj.tickText.fn(i)).length/2 + (''+faceObj.tickText.fn(i)).length * faceObj.tickText.fontSize/10  ;          
           }
         })
-        .attr("y", function(d, i){return 7+(outerRadius - faceObj.tickText.fontSize - faceObj.tickHeight(i) )*Math.sin(6*i*(Math.PI/180)-1.57); })
+        .attr("y", function(d, i){return faceObj.tickText.fontSize/2 +(outerRadius - faceObj.tickText.fontSize - faceObj.tickHeight(i) )*Math.sin(6*i*(Math.PI/180)-1.57); })
         .attr("font-family", faceObj.tickText.fontFamily)
+        .attr("font-size", faceObj.tickText.fontSize)
         .text(function(d, i){return faceObj.tickText.fn(i);});
   }
   render = function(data) {
