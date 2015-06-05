@@ -3,6 +3,8 @@ d3clock
 
 An analog clock implementation in d3.
 
+[Read the post here](https://github.com/danielpradilla/d3clock)
+
 Usage:
 
 Call d3clock(config) for each clock instance
