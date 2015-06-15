@@ -304,7 +304,83 @@ var d3clock = function(config) {
           },
           easing:'circle'
 
+      },
+      'pf':{
+          outerRing: {r:outerRadius * 1.02, stroke: '#999', strokeWidth: 1},
+          secondsRing: {r:outerRadius * 0.04, fill: '#F6C52E'},
+          secondsInnermostRing: {r:outerRadius * 0.05/5, fill: 'black'},
+          tickUnit: outerRadius * 0.0625/3,
+          tickWidth: function(i) {
+            return (i%5) ? this.tickUnit/3 : this.tickUnit;
+          },
+          tickHeight: function(i) {
+            return (i%5) ? this.tickUnit*3*1.5  : this.tickUnit*3*1.5;
+          },
+          tickFill: function(i) {
+            return (i%5) ? '#999' : 'black';
+          },
+          tickText: {
+            fontSize: (width * 14 / 500),
+            fontFamily:'Helvetica, Arial, sans-serif',
+            fn: function(i){
+              return ((i%5) ? '' : (i/5 > 0) ? i/5: 12);
+            }
+          },
+          rotationTranslate: function(i) {
+            return "translate("+ (-this.tickWidth(i)/2) +",0)";
+          },
+          clockHandWidth: function(d) {
+            if (d.unit === "hours") {
+              return this.tickUnit*3;
+            } else if (d.unit === "minutes") {
+              return this.tickUnit*2;
+            } else if (d.unit === "seconds") {
+              return this.tickUnit;
+            }
+          },
+          clockHandHeight: function(d){
+            if (d.unit === "hours") {
+              return outerRadius - outerRadius/3 - this.secondsRing.r*3;
+            } else if (d.unit === "minutes") {
+              return outerRadius - (this.secondsRing.r*3 + this.tickUnit*4);
+            } else if (d.unit === "seconds") {
+              return (outerRadius - this.tickUnit*4);
+            }
+          },
+          clockHandx: function(d) {
+            if (d.unit==="hours"){
+              return -this.tickUnit*3/2;
+            } else if (d.unit==="minutes"){
+              return -this.tickUnit*2/2;
+            } else if (d.unit==="seconds") {
+              return -this.tickUnit/2;
+            }
+          },
+          clockHandy: function(d) {
+            if (d.unit==="hours"){
+              return -outerRadius + outerRadius/3 + this.secondsRing.r*3;
+            } else if (d.unit==="minutes"){
+              return -outerRadius + this.secondsRing.r*3 + this.tickUnit*4;
+            } else if (d.unit==="seconds") {
+              return -outerRadius + this.secondsRing.r*3 + this.tickUnit*4 ;
+            }
+          },
+          clockHandFill: function(d){
+            if (d.unit==="seconds"){
+              return "#F6C52E";
+            } else if (d.unit==="minutes") {
+              return "#333";
+            } else {
+              return "#666";
+            }
+          },
+          clockHandAdditional: function(clockHand){
+            return true;
+          },
+          easing:'circle'
+
       }
+
   };
 
   var faceObj = faces[face];
@@ -342,24 +418,40 @@ var d3clock = function(config) {
       );
 
   if (faceObj.tickText){
+    var radian = function(i) {return 6*i*(Math.PI/180) - (90 * Math.PI/180); }
     tickGroup
         .append("text")
         .attr("class", "tick")
         .attr("x", function(d, i){
-          var xPos = Math.cos(6*i*(Math.PI/180)-1.57);
+          var xPos = Math.cos(radian(i));
           var pos = Math.round(100*xPos); //>0, <0, 0
           if (pos>0){
             return (outerRadius - faceObj.tickHeight(i) - faceObj.tickText.fontSize )*xPos;
           } else if (pos<0) {
-            return (outerRadius - faceObj.tickHeight(i)/2 - faceObj.tickText.fontSize )*xPos;
+            return (outerRadius - faceObj.tickText.fontSize )*xPos;
           } else {
             return -faceObj.tickText.fontSize*(''+faceObj.tickText.fn(i)).length/2 + (''+faceObj.tickText.fn(i)).length * faceObj.tickText.fontSize/10  ;          
           }
         })
-        .attr("y", function(d, i){return faceObj.tickText.fontSize/2 +(outerRadius - faceObj.tickText.fontSize - faceObj.tickHeight(i) )*Math.sin(6*i*(Math.PI/180)-1.57); })
+        .attr("y", function(d, i){
+          var yPos = Math.sin(radian(i));
+          var pos = Math.round(100*yPos);
+          if (pos>0){
+            return (outerRadius - faceObj.tickText.fontSize )*yPos;
+          } else if (pos<0) {
+            return (outerRadius - faceObj.tickHeight(i) - faceObj.tickText.fontSize )*yPos;
+          } else {
+            return faceObj.tickText.fontSize/3  ;          
+          }
+        })
+
+   
         .attr("font-family", faceObj.tickText.fontFamily)
         .attr("font-size", faceObj.tickText.fontSize)
         .text(function(d, i){return faceObj.tickText.fn(i);});
+
+      
+
   }
   render = function(data) {
     //render / update the clock hands
