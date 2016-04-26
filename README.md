@@ -6,9 +6,9 @@ An analog clock implementation in d3.
 [Read the post here](http://www.danielpradilla.info/blog/en/a-swiss-railway-clock-in-d3/)
 
 I borrowed some ideas from:
-*[https://github.com/wout/svg.clock.js](https://github.com/wout/svg.clock.js)
-*[https://ericbullington.com/blog/2012/10/27/d3-oclock/](https://ericbullington.com/blog/2012/10/27/d3-oclock/)
-*[http://www.infocaptor.com/dashboard/d3-javascript-visualization-to-build-world-analog-clocks](http://www.infocaptor.com/dashboard/d3-javascript-visualization-to-build-world-analog-clocks)
+- [https://github.com/wout/svg.clock.js](https://github.com/wout/svg.clock.js)
+- [https://ericbullington.com/blog/2012/10/27/d3-oclock/](https://ericbullington.com/blog/2012/10/27/d3-oclock/)
+- [http://www.infocaptor.com/dashboard/d3-javascript-visualization-to-build-world-analog-clocks](http://www.infocaptor.com/dashboard/d3-javascript-visualization-to-build-world-analog-clocks)
 
 
 Usage:
