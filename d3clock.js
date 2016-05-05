@@ -83,6 +83,8 @@ var d3clock = function(config) {
     face = config.face;
   } 
 
+  var romanNumerals = ['I','II','III','IIII','V','VI','VII','VIII','IX','X','XI','XII'];
+
   //clock faces configuration
   var faces = {
       'sbb':{
@@ -162,6 +164,9 @@ var d3clock = function(config) {
             .attr("fill", "#e00");
 
           },
+          clockGroupAdditional: function(clockGroup) {
+            return true;
+          },
           easing:'linear'
       },
       'modern':{
@@ -225,6 +230,9 @@ var d3clock = function(config) {
             }
           },
           clockHandAdditional: function(clockHand){
+            return true;
+          },
+          clockGroupAdditional: function(clockGroup) {
             return true;
           },
           easing:'exp'
@@ -302,16 +310,19 @@ var d3clock = function(config) {
           clockHandAdditional: function(clockHand){
             return true;
           },
+          clockGroupAdditional: function(clockGroup) {
+            return true;
+          },
           easing:'circle'
 
       },
-      'pf':{
-          outerRing: {r:outerRadius * 1.02, stroke: '#999', strokeWidth: 1},
-          secondsRing: {r:outerRadius * 0.04, fill: '#F6C52E'},
+      'classic':{
+          outerRing: {r:outerRadius * 1, fill: 'black', stroke: '#000', strokeWidth: 1},
+          secondsRing: {r:outerRadius * 0.04, fill: 'black'},
           secondsInnermostRing: {r:outerRadius * 0.05/5, fill: 'black'},
           tickUnit: outerRadius * 0.0625/3,
           tickWidth: function(i) {
-            return (i%5) ? this.tickUnit/3 : this.tickUnit;
+            return (i%5) ? this.tickUnit/3 : this.tickUnit*3;
           },
           tickHeight: function(i) {
             return (i%5) ? this.tickUnit*3*1.5  : this.tickUnit*3*1.5;
@@ -319,11 +330,18 @@ var d3clock = function(config) {
           tickFill: function(i) {
             return (i%5) ? '#999' : 'black';
           },
-          tickText: {
+          tickTextRotated: {
             fontSize: (width * 14 / 500),
-            fontFamily:'Helvetica, Arial, sans-serif',
+            fontFamily:'Georgia, serif',
             fn: function(i){
-              return ((i%5) ? '' : (i/5 > 0) ? i/5: 12);
+              return ((i%5) ? '' : (i/5 > 0) ? romanNumerals[i/5 - 1]: romanNumerals[12-1]);
+            }
+          },
+          tickTextX: function(i){ 
+            if (this.tickTextRotated.fn(i).length>1) {
+              return -this.tickTextRotated.fontSize + 1.5*this.tickTextRotated.fontSize/this.tickTextRotated.fn(i).length;
+            } else {
+              return 0;
             }
           },
           rotationTranslate: function(i) {
@@ -331,11 +349,11 @@ var d3clock = function(config) {
           },
           clockHandWidth: function(d) {
             if (d.unit === "hours") {
-              return this.tickUnit*3;
+              return this.tickUnit*2;
             } else if (d.unit === "minutes") {
               return this.tickUnit*2;
             } else if (d.unit === "seconds") {
-              return this.tickUnit;
+              return this.tickUnit/2;
             }
           },
           clockHandHeight: function(d){
@@ -367,17 +385,24 @@ var d3clock = function(config) {
           },
           clockHandFill: function(d){
             if (d.unit==="seconds"){
-              return "#F6C52E";
+              return "black";
             } else if (d.unit==="minutes") {
-              return "#333";
+              return "black";
             } else {
-              return "#666";
+              return "black";
             }
           },
           clockHandAdditional: function(clockHand){
             return true;
           },
-          easing:'circle'
+          clockGroupAdditional: function(clockGroup) {
+            clockGroup.append("svg:circle")
+              .attr('r', this.outerRing.r - this.tickUnit*4)
+              .attr("fill", "none")
+              .attr("stroke", "#000").attr("stroke-width","1px");
+
+          },
+          easing:'exp'
 
       }
 
@@ -398,6 +423,7 @@ var d3clock = function(config) {
       .attr("stroke", faceObj.outerRing.stroke)
       .attr("stroke-width", faceObj.outerRing.strokeWidth);
 
+  faceObj.clockGroupAdditional(clockGroup);
 
   //create the minutes and hours ticks
   tickGroup=clockGroup.append("svg:g")
@@ -428,9 +454,9 @@ var d3clock = function(config) {
           if (pos>0){
             return (outerRadius - faceObj.tickHeight(i) - faceObj.tickText.fontSize )*xPos;
           } else if (pos<0) {
-            return (outerRadius - faceObj.tickText.fontSize )*xPos;
+            return (outerRadius - faceObj.tickText.fontSize/1.2 )*xPos;
           } else {
-            return -faceObj.tickText.fontSize*(''+faceObj.tickText.fn(i)).length/2 + (''+faceObj.tickText.fn(i)).length * faceObj.tickText.fontSize/10  ;          
+            return -faceObj.tickText.fontSize*(''+faceObj.tickText.fn(i)).length/2 + (''+faceObj.tickText.fn(i)).length * faceObj.tickText.fontSize/5  ;          
           }
         })
         .attr("y", function(d, i){
@@ -445,14 +471,27 @@ var d3clock = function(config) {
           }
         })
 
-   
         .attr("font-family", faceObj.tickText.fontFamily)
         .attr("font-size", faceObj.tickText.fontSize)
         .text(function(d, i){return faceObj.tickText.fn(i);});
-
-      
-
   }
+
+  if (faceObj.tickTextRotated){
+    tickGroup
+        .append("text")
+        .attr("class", "tick")
+        .attr("x", function(i) {return faceObj.tickTextX(i);})
+        .attr("y", function(i) {return -outerRadius + faceObj.tickHeight(i)*2.5;})
+        .attr("font-family", faceObj.tickTextRotated.fontFamily)
+        .attr("font-size", faceObj.tickTextRotated.fontSize)
+        .text(function(d, i){return faceObj.tickTextRotated.fn(i);})
+        .attr("transform", function(d, i){
+          return "rotate("+(i*6)+"),"+faceObj.rotationTranslate(i);}
+        );
+  }
+
+
+
   render = function(data) {
     //render / update the clock hands
 
