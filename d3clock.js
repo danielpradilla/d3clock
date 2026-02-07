@@ -403,9 +403,11 @@ var d3clock = function(config) {
 
   };
 
-  if (!faces[face]) {
-    face = 'sbb';
-  }
+  var resolveFace = function(faceName, facesConfig) {
+    return facesConfig[faceName] ? faceName : 'sbb';
+  };
+
+  face = resolveFace(face, faces);
   var faceObj = faces[face];
 
   var secondDisplayValue = function(secondValue) {
@@ -419,96 +421,110 @@ var d3clock = function(config) {
     return normalizedSecond * (60 / 58);
   };
 
-  //create the basic visualization:
-  vis = d3.select(config.target).append("svg:svg").attr("width", width).attr("height", height).attr("class","clock");
+  var buildTickData = function() {
+    return d3.range(60).map(function(i) {
+      return {
+        i: i,
+        tickTextValue: faceObj.tickText ? '' + faceObj.tickText.fn(i) : '',
+        tickTextRotatedValue: faceObj.tickTextRotated ? '' + faceObj.tickTextRotated.fn(i) : ''
+      };
+    });
+  };
 
-  clockGroup = vis.append("svg:g").attr("transform", "translate(" + offSetX + "," + offSetY + ")");
+  var buildClockScaffold = function() {
+    vis = d3.select(config.target)
+      .append("svg:svg")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("class","clock");
 
-  //create the outer circle of the clock face
-  clockGroup.append("svg:circle")
+    clockGroup = vis.append("svg:g")
+      .attr("transform", "translate(" + offSetX + "," + offSetY + ")");
+
+    clockGroup.append("svg:circle")
       .attr("r", faceObj.outerRing.r)
       .attr("fill", "none")
       .attr("class", "clock outercircle")
       .attr("stroke", faceObj.outerRing.stroke)
       .attr("stroke-width", faceObj.outerRing.strokeWidth);
 
-  faceObj.clockGroupAdditional(clockGroup);
+    faceObj.clockGroupAdditional(clockGroup);
+  };
 
-  var tickData = d3.range(60).map(function(i) {
-    return {
-      i: i,
-      tickTextValue: faceObj.tickText ? '' + faceObj.tickText.fn(i) : '',
-      tickTextRotatedValue: faceObj.tickTextRotated ? '' + faceObj.tickTextRotated.fn(i) : ''
-    };
-  });
-
-  //create the minutes and hours ticks
-  tickGroup=clockGroup.append("svg:g")
+  var buildTicks = function() {
+    var tickData = buildTickData();
+    tickGroup = clockGroup.append("svg:g")
       .selectAll(".tick")
       .data(tickData)
       .enter();
 
-  tickGroup.append("svg:rect")
+    tickGroup.append("svg:rect")
       .attr("class", "tick")
       .attr("x", 0)
-      .attr("y", -outerRadius )
-      // .attr("width", function(d, i){return (i%5) ? 0 : 1;})
+      .attr("y", -outerRadius)
       .attr("width", function(d){ return faceObj.tickWidth(d.i); })
       .attr("height", function(d){ return faceObj.tickHeight(d.i); })
       .attr("fill", function(d){ return faceObj.tickFill(d.i);})
       .attr("transform", function(d){
-        return "rotate("+(d.i*6)+"),"+faceObj.rotationTranslate(d.i);}
-      );
+        return "rotate("+(d.i*6)+"),"+faceObj.rotationTranslate(d.i);
+      });
+  };
 
-  if (faceObj.tickText){
-    var radian = function(i) {return 6*i*(Math.PI/180) - (90 * Math.PI/180); }
+  var buildTickText = function() {
+    if (!faceObj.tickText) {
+      return;
+    }
+    var radian = function(i) {return 6*i*(Math.PI/180) - (90 * Math.PI/180); };
     tickGroup
-        .append("text")
-        .attr("class", "tick")
-        .attr("x", function(d){
-          var xPos = Math.cos(radian(d.i));
-          var pos = Math.round(100*xPos); //>0, <0, 0
-          var labelLength = d.tickTextValue.length;
-          if (pos>0){
-            return (outerRadius - faceObj.tickHeight(d.i) - faceObj.tickText.fontSize )*xPos;
-          } else if (pos<0) {
-            return (outerRadius - faceObj.tickText.fontSize/1.2 )*xPos;
-          } else {
-            return -faceObj.tickText.fontSize*labelLength/2 + labelLength * faceObj.tickText.fontSize/5  ;
-          }
-        })
-        .attr("y", function(d){
-          var yPos = Math.sin(radian(d.i));
-          var pos = Math.round(100*yPos);
-          if (pos>0){
-            return (outerRadius - faceObj.tickText.fontSize )*yPos;
-          } else if (pos<0) {
-            return (outerRadius - faceObj.tickHeight(d.i) - faceObj.tickText.fontSize )*yPos;
-          } else {
-            return faceObj.tickText.fontSize/3  ;          
-          }
-        })
+      .append("text")
+      .attr("class", "tick")
+      .attr("x", function(d){
+        var xPos = Math.cos(radian(d.i));
+        var pos = Math.round(100*xPos);
+        var labelLength = d.tickTextValue.length;
+        if (pos>0){
+          return (outerRadius - faceObj.tickHeight(d.i) - faceObj.tickText.fontSize )*xPos;
+        } else if (pos<0) {
+          return (outerRadius - faceObj.tickText.fontSize/1.2 )*xPos;
+        }
+        return -faceObj.tickText.fontSize*labelLength/2 + labelLength * faceObj.tickText.fontSize/5;
+      })
+      .attr("y", function(d){
+        var yPos = Math.sin(radian(d.i));
+        var pos = Math.round(100*yPos);
+        if (pos>0){
+          return (outerRadius - faceObj.tickText.fontSize )*yPos;
+        } else if (pos<0) {
+          return (outerRadius - faceObj.tickHeight(d.i) - faceObj.tickText.fontSize )*yPos;
+        }
+        return faceObj.tickText.fontSize/3;
+      })
+      .attr("font-family", faceObj.tickText.fontFamily)
+      .attr("font-size", faceObj.tickText.fontSize)
+      .text(function(d){ return d.tickTextValue; });
+  };
 
-        .attr("font-family", faceObj.tickText.fontFamily)
-        .attr("font-size", faceObj.tickText.fontSize)
-        .text(function(d){return d.tickTextValue;});
-  }
-
-  if (faceObj.tickTextRotated){
+  var buildRotatedTickText = function() {
+    if (!faceObj.tickTextRotated) {
+      return;
+    }
     tickGroup
-        .append("text")
-        .attr("class", "tick")
-        .attr("x", function(d) {return faceObj.tickTextX(d.i);})
-        .attr("y", function(d) {return -outerRadius + faceObj.tickHeight(d.i)*2.5;})
-        .attr("font-family", faceObj.tickTextRotated.fontFamily)
-        .attr("font-size", faceObj.tickTextRotated.fontSize)
-        .text(function(d){return d.tickTextRotatedValue;})
-        .attr("transform", function(d){
-          return "rotate("+(d.i*6)+"),"+faceObj.rotationTranslate(d.i);}
-        );
-  }
+      .append("text")
+      .attr("class", "tick")
+      .attr("x", function(d) {return faceObj.tickTextX(d.i);})
+      .attr("y", function(d) {return -outerRadius + faceObj.tickHeight(d.i)*2.5;})
+      .attr("font-family", faceObj.tickTextRotated.fontFamily)
+      .attr("font-size", faceObj.tickTextRotated.fontSize)
+      .text(function(d){return d.tickTextRotatedValue;})
+      .attr("transform", function(d){
+        return "rotate("+(d.i*6)+"),"+faceObj.rotationTranslate(d.i);
+      });
+  };
 
-
+  buildClockScaffold();
+  buildTicks();
+  buildTickText();
+  buildRotatedTickText();
 
   var clockHands = null;
   var intervalId = null;
@@ -566,7 +582,16 @@ var d3clock = function(config) {
       .attr("class", "clock innermostcircle");
   };
 
-  render = function(data) {
+  var getHandRotation = function(d) {
+    if (d.unit==="hours"){
+      return "rotate("+d.numeric%12 * 30+")";
+    } else if (d.unit==="minutes") {
+      return "rotate("+normalizeModulo(d.numeric, 60) * 6+")";
+    }
+    return "rotate("+secondDisplayValue(d.numeric) * 6+")";
+  };
+
+  var updateHands = function(data) {
     if (destroyed) {
       return;
     }
@@ -575,24 +600,25 @@ var d3clock = function(config) {
     clockHands = clockGroup.selectAll(".clockhand")
       .data(data, function(d) { return d.unit; });
 
-    clockHands.interrupt().transition().duration(900).ease(faceObj.easing).attr("transform", function(d) {
-      if (d.unit==="hours"){
-        return "rotate("+d.numeric%12 * 30+")";
-      } else if (d.unit==="minutes") {
-        return "rotate("+normalizeModulo(d.numeric, 60) * 6+")";
-      } else {
-        return "rotate("+secondDisplayValue(d.numeric) * 6+")";
-      }
-    });
+    clockHands.interrupt()
+      .transition()
+      .duration(900)
+      .ease(faceObj.easing)
+      .attr("transform", getHandRotation);
   };
 
-  if (config.date) {
-    render(fields(config.date));
-  } else {
+  var startClock = function() {
+    if (config.date) {
+      updateHands(fields(config.date));
+      return;
+    }
     intervalId = setInterval(function() {
-      return render(fields());
+      return updateHands(fields());
     }, 1000);
-  }
+  };
+
+  render = updateHands;
+  startClock();
 
   return {
     destroy: function() {
