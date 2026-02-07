@@ -147,11 +147,11 @@ var d3clock = function(config) {
 	              var cap = handGroup.selectAll("circle.sbb-second-cap")
 	                .data(d.unit === "seconds" ? [d] : []);
 
-	              cap.enter()
+	              var capEnter = cap.enter()
 	                .append("svg:circle")
 	                .attr("class", "sbb-second-cap");
 
-	              cap
+	              capEnter.merge(cap)
 	                .attr("r", that.tickUnit * 4)
 	                .attr("cy", -outerRadius + that.tickUnit*3*3 + that.tickUnit*4)
 	                .attr("fill", "#e00");
