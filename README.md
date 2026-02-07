@@ -17,6 +17,29 @@ Usage:
 
 Call d3clock(config) for each clock instance
 
+### Load D3 (CDN or local)
+
+`d3clock` expects D3 to be loaded before `d3clock.js`.
+
+CDN (current example uses D3 v7):
+```html
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" charset="utf-8"></script>
+<script src="d3clock.js"></script>
+```
+
+Local file (for offline/dev usage):
+```html
+<script src="./vendor/d3.min.js" charset="utf-8"></script>
+<script src="d3clock.js"></script>
+```
+
+Example local layout:
+```text
+clock.html
+d3clock.js
+vendor/d3.min.js
+```
+
 eg:
 ```javascript
 d3clock({
