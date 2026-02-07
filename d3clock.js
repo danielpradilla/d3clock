@@ -162,7 +162,7 @@ var d3clock = function(config) {
           clockGroupAdditional: function(clockGroup) {
             return true;
           },
-          easing:'linear'
+	          easing:d3.easeLinear
       },
       'modern':{
           outerRing: {r:outerRadius * 1, stroke: '#999', strokeWidth: 1},
@@ -230,7 +230,7 @@ var d3clock = function(config) {
           clockGroupAdditional: function(clockGroup) {
             return true;
           },
-          easing:'exp'
+	          easing:d3.easeExp
 
       },
       'braun':{
@@ -308,7 +308,7 @@ var d3clock = function(config) {
           clockGroupAdditional: function(clockGroup) {
             return true;
           },
-          easing:'circle'
+	          easing:d3.easeCircle
 
       },
       'classic':{
@@ -397,7 +397,7 @@ var d3clock = function(config) {
               .attr("stroke", "#000").attr("stroke-width","1px");
 
           },
-          easing:'exp'
+	          easing:d3.easeExp
 
       }
 
