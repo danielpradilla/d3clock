@@ -93,6 +93,27 @@
         outline-offset: 4px;
       }
 
+      .embed main {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        padding: 0 16px;
+      }
+
+      .embed .intro,
+      .embed .clock-example h2,
+      .embed .clock-example p,
+      .embed .clock-example:not(:first-child),
+      .embed .site-links,
+      .embed noscript {
+        display: none;
+      }
+
+      .embed .clock-grid {
+        grid-template-columns: 1fr;
+        width: min(100%, 100vh, 400px);
+      }
+
       @media (max-width: 760px) and (min-height: 401px) {
         main {
           width: min(100% - 32px, 500px);
@@ -165,11 +186,16 @@
     <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
     <script src="d3clock.js"></script>
     <script>
-      [
+      const embedded = new URLSearchParams(location.search).has("embed");
+      document.documentElement.classList.toggle("embed", embedded);
+
+      const clockConfigs = embedded ? [["#sbb-clock", "sbb"]] : [
         ["#sbb-clock", "sbb"],
         ["#modern-clock", "modern"],
         ["#braun-clock", "braun"]
-      ].forEach(([target, face]) => {
+      ];
+
+      clockConfigs.forEach(([target, face]) => {
         d3clock({ target, face, width: 1000 });
         const clock = document.querySelector(`${target} svg.clock`);
         clock.setAttribute("viewBox", "0 0 500 500");
@@ -177,7 +203,7 @@
         clock.setAttribute("height", "500");
       });
 
-      console.assert(document.querySelectorAll("svg.clock").length === 3, "Expected three clock faces");
+      console.assert(document.querySelectorAll("svg.clock").length === clockConfigs.length, "Unexpected clock count");
     </script>
   </body>
 </html>
