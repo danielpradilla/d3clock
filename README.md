@@ -3,6 +3,8 @@ d3clock
 
 An analog clock implementation in d3.
 
+[Live demo](https://www.danielpradilla.info/d3clock/)
+
 ![d3clock](https://www.danielpradilla.info/blog/wp-content/uploads/2015/06/Screen-Shot-2015-06-05-at-5.26.54-PM.png)
 
 [Read the post here](http://www.danielpradilla.info/blog/en/a-swiss-railway-clock-in-d3/)
@@ -35,7 +37,7 @@ Local file (for offline/dev usage):
 
 Example local layout:
 ```text
-clock.html
+index.html
 d3clock.js
 vendor/d3.min.js
 ```
